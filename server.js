@@ -1,5 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 
@@ -129,6 +131,6 @@ app.put('/face-detection/image-entry', (req, res) => {
     // Use the user ID's cookie to edit it's faceEntries when one image is submited. Then send a response with the updated entries.
 })
 
-app.listen(process.env.PORT || 3001, () => {
-    console.log(`Listening to port ${process.env.PORT || 3001}`);
+app.listen(process.env.PORT, () => {
+    console.log(`Listening to port ${process.env.PORT}`);
 })
