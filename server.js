@@ -11,9 +11,15 @@ const databasePlaceholder = {
             id: 120,
             name: "Marcelo Lopez",
             email: "marcelo-lo@outlook.com",
-            password: "openthedoor",
             faceEntries: 0,
-            joined: new Date()
+            joined: new Date(),
+            activated: ""
+        }
+    ],
+    login: [
+        {
+            user_id: 120,
+            password: "openthedoor",
         }
     ]
 }
@@ -36,21 +42,26 @@ app.post('/login', (req, res) => {
     if(Object.keys(errors).length > 0) {
         res.status(400).json(errors);
     } else {
-        const authUser = async () => {
-            const dbEmail = databasePlaceholder.users.at(-1).email;
-            const dbPassword = databasePlaceholder.users.at(-1).password;
-            const hashMatch = await bcrypt.compare(password, dbPassword);
-            if (!(email === dbEmail && hashMatch)) {
-                errors["login-message"] = "Incorrect email or password.";
-                res.status(400).json(errors);
-            } else {
-                res.send("success");
-                // Create a user ID cookie.
-                // Redirect to /face-detection
+        const dbEmail = databasePlaceholder.users.at(-1).email;
+        if(!dbEmail) {
+            errors["login-message"] = "Incorrect email or password.";
+            res.status(400).json(errors);
+        } else {
+            const authUser = async () => {
+                const dbPassword = databasePlaceholder.login.at(-1).password;
+                const hashMatch = await bcrypt.compare(password, dbPassword);
+                if (!(email === dbEmail && hashMatch)) {
+                    errors["login-message"] = "Incorrect email or password.";
+                    res.status(400).json(errors);
+                } else {
+                    res.send("success");
+                    // Create a user ID cookie.
+                    // Redirect to /face-detection
+                }
             }
-        }
 
-        authUser();
+            authUser();
+        }
     }
 })
 
@@ -70,6 +81,8 @@ app.post('/register', (req, res) => {
     }
     if (!password) {
         errors["user-password"] = "Please enter your password";
+    } else if ( password.length < 8) {
+        errors["user-password"] = "Password must have at least 8 characters";
     }
     if (!confirmPassword) {
         errors["user-confirm-password"] = "Please confirm your password";
@@ -87,14 +100,20 @@ app.post('/register', (req, res) => {
             const saltRounds = 0;
             const hash = await bcrypt.hash(password, saltRounds);
             const newUser = {
+                id: 121,
                 name,
                 email,
-                password: hash,
                 faceEntries: 0,
-                joined: new Date()
+                joined: new Date(),
+                activated: "",
+            }
+            const newUserLogInfo = {
+                user_id: 121,
+                password: hash,
             }
             databasePlaceholder.users.push(newUser);
-            res.json(databasePlaceholder.users.at(-1));
+            databasePlaceholder.login.push(newUserLogInfo);
+            res.json([databasePlaceholder.users.at(-1), databasePlaceholder.login.at(-1)]);
             // Redirect to /email-confirm
         }
 
