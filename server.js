@@ -6,25 +6,6 @@ const app = express();
 
 app.use(express.json());
 
-const databasePlaceholder = {
-    users: [
-        {
-            id: 120,
-            name: "Marcelo Lopez",
-            email: "marcelo-lo@outlook.com",
-            faceEntries: 0,
-            joined: new Date(),
-            activated: ""
-        }
-    ],
-    login: [
-        {
-            user_id: 120,
-            password: "openthedoor",
-        }
-    ]
-}
-
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
     const errors = {}; // Errors -> key = Input html id, value = Message
@@ -43,26 +24,34 @@ app.post('/login', (req, res) => {
     if(Object.keys(errors).length > 0) {
         res.status(400).json(errors);
     } else {
-        const dbEmail = databasePlaceholder.users.at(-1).email;
-        if(!dbEmail) {
-            errors["login-message"] = "Incorrect email or password.";
-            res.status(400).json(errors);
-        } else {
-            const authUser = async () => {
-                const dbPassword = databasePlaceholder.login.at(-1).password;
-                const hashMatch = await bcrypt.compare(password, dbPassword);
-                if (!(email === dbEmail && hashMatch)) {
-                    errors["login-message"] = "Incorrect email or password.";
+        const authUser = async () => {
+            const selectAuth = "SELECT * FROM auth WHERE email = $1";
+            const authValues = [email];
+            try {
+                const selectAuthResponse = await db.query(selectAuth, authValues);
+                if (selectAuthResponse.rowCount === 0) {
+                    errors['login-message'] = "Incorrect email or password";
                     res.status(400).json(errors);
                 } else {
-                    res.send("success");
-                    // Create a user ID cookie.
-                    // Redirect to /face-detection
+                    const userAuthRow = selectAuthResponse.rows[0];
+                    const hashMatch = await bcrypt.compare(password, userAuthRow.hash);
+                    if (!hashMatch) {
+                        errors["login-message"] = "Incorrect email or password.";
+                        res.status(400).json(errors);
+                    } else {
+                        res.send("success");
+                        // Create a user ID cookie.
+                        // Redirect to /face-detection
+                    }
                 }
+            } catch (err) {
+                console.log(err);
+                errors['login-message'] = "There was an error in the login process. Please try again later.";
+                res.status(502).json({errors});
             }
-
-            authUser();
         }
+
+        authUser();
     }
 })
 
