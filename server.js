@@ -145,7 +145,7 @@ app.post('/register', (req, res) => {
             const hash = await bcrypt.hash(password, saltRounds);
             try {
                 const selectUser = "SELECT $1 FROM users WHERE email = $2";
-                const selectUserValues = ["activation", email];
+                const selectUserValues = ['activation', email];
 
                 const selectUserResponse = await db.query(selectUser, selectUserValues);
                 if (selectUserResponse.rowCount > 0) {
@@ -197,24 +197,29 @@ app.get('/email-verification/:verificationToken', (req, res) => {
         } else {
             const activateUser = async () => {
                 const email = decoded.email;
-                const selectAuth = "SELECT id FROM auth WHERE email = $1";
-                const authValues = [email];
+                const selectAuth = "SELECT $1 FROM auth WHERE email = $2";
+                const selectAuthValues = ['activation', email];
                 try {
-                    const selectAuthResponse = await db.query(selectAuth, authValues);
+                    const selectAuthResponse = await db.query(selectAuth, selectAuthValues);
                     if (selectAuthResponse.rowCount === 0) {
-                        throw Error('Email not found.');
-                    } else if (selectAuthResponse.rowCount > 0) {
-                        const updateAuth = "UPDATE auth SET activation = $1 WHERE email = $2";
-                        const authValues = ["active", email];
-
-                        const updateAuthResponse = await db.query(updateAuth, authValues);
-                        if (updateAuthResponse.rowCount === 0) {
-                            throw Error('Failed to update database.')
-                        } else if (updateAuthResponse.rowCount > 0) {
-                            res.send("success");
-                            // Redirect to successful activation front-end -> /activation-success
-                        }
+                        throw Error("Email not found.");
                     }
+
+                    if (selectAuthResponse.rows[0].activation === 'active') {
+                        return res.send("success");
+                        // Redirect to successful activation front-end -> /activation-success
+                    }
+
+                    const updateAuth = "UPDATE auth SET activation = $1 WHERE email = $2";
+                    const updateAuthValues = ['active', email];
+
+                    const updateAuthResponse = await db.query(updateAuth, updateAuthValues);
+                    if (updateAuthResponse.rowCount === 0) {
+                        throw Error("Failed to update database.")
+                    }
+
+                    return res.send("success");
+                    // Redirect to successful activation front-end -> /activation-success
                 } catch (err) {
                     console.log(err);
                     // Redirect to error front-end -> /error
