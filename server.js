@@ -32,24 +32,29 @@ app.post('/login', (req, res) => {
             try {
                 const selectAuthResponse = await db.query(selectAuth, authValues);
                 if (selectAuthResponse.rowCount === 0) {
-                    errors['login-message'] = "Incorrect email or password";
-                    res.status(400).json(errors);
-                } else if (selectAuthResponse.rowCount > 0) {
-                    const userAuthRow = selectAuthResponse.rows[0];
-                    const hashMatch = await bcrypt.compare(password, userAuthRow.hash);
-                    if (!hashMatch) {
-                        errors["login-message"] = "Incorrect email or password.";
-                        res.status(400).json(errors);
-                    } else {
-                        res.send("success");
-                        // Create a user ID cookie.
-                        // Redirect to /face-detection
-                    }
+                    errors['login-message'] = "Incorrect email or password.";
+                    return res.status(400).json(errors);
                 }
+                
+                const userAuthRow = selectAuthResponse.rows[0];
+                if (userAuthRow.activation !== 'active') {
+                    errors['login-message'] = "This account is not yet activated."
+                    return res.status(400).json(errors);
+                }
+
+                const hashMatch = await bcrypt.compare(password, userAuthRow.hash);
+                if (!hashMatch) {
+                    errors['login-message'] = "Incorrect email or password.";
+                    return res.status(400).json(errors);
+                }
+
+                return res.send("success");
+                // Create a user ID cookie.
+                // Redirect to /face-detection
             } catch (err) {
                 console.log(err);
                 errors['login-message'] = "There was an error in the login process. Please try again later.";
-                res.status(502).json({errors});
+                return res.status(502).json({errors});
             }
         }
 
