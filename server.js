@@ -93,87 +93,89 @@ app.post('/register', (req, res) => {
     if(Object.keys(errors).length > 0) {
         res.status(400).json(errors);
     } else {
+        const sendVerificationEmail = async (verificationToken) => {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            })
+            const mailOptions = {
+                from: '"Mastermind" <m4rck4n24@gmail.com>',
+                to: email,
+                subject: 'Verify you Mastermind account',
+                html: `
+                    <html>
+                    <head>
+                        <style>
+                            h1 {
+                                color: #00abb8;
+                            }
+                            a {
+                                color: #ffc342;
+                            }
+                            a::hover, a:active {
+                                color: #f6b831;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Hello! Please verify your Mastermind account:</h1>
+                        <p>In order to be able to log in and use face detection on images through our app, you need to verify your account.</p>
+                        <p>
+                            Please click in the following link or copy and paste it into your browser: 
+                        </p>
+                        <p>
+                            <a href="http://localhost:3001/email-verification/${verificationToken}">
+                                http://localhost:3001/email-verification/${verificationToken}
+                            </a>
+                        </p>
+                    </body>
+                    <html>
+                `
+            }
+            const mailInfo = await transporter.sendMail(mailOptions);
+
+            return mailInfo;
+        }
+
         const registerUser = async () => {
             const saltRounds = 10;
             const hash = await bcrypt.hash(password, saltRounds);
-            const verificationToken = jwt.sign({ email }, process.env.TOKEN_VERIFICATION_SECRET, { expiresIn: '1h' });
             try {
-                const selectUser = "SELECT * FROM users WHERE email = $1";
-                const userValues = [email];
+                const selectUser = "SELECT $1 FROM users WHERE email = $2";
+                const selectUserValues = ["activation", email];
 
-                const selectUserResponse = await db.query(selectUser, userValues);
+                const selectUserResponse = await db.query(selectUser, selectUserValues);
                 if (selectUserResponse.rowCount > 0) {
                     errors['register-message'] = "This email is already registered.";
-                    res.status(400).json({errors})
-                } else {
-                    const insertUser = "INSERT INTO users (name, email, joined) VALUES ($1, $2, $3);";
-                    const userValues = [name, email, new Date()];
-                    const insertAuth = "INSERT INTO auth (email, hash, activation) VALUES ($1, $2, $3);"
-                    const authValues = [email, hash, verificationToken];
-                    
-                    const insertUserResponse = await db.query(insertUser, userValues);
-                    const insertAuthResponse = await db.query(insertAuth, authValues);
-                    if (insertUserResponse.rowCount === 0 && insertAuthResponse.rowCount === 0) {
-                        errors['register-message'] = "There was an error registring your information. Please try again later.";
+                    return res.status(400).json({errors})
+                }
+
+                const verificationToken = jwt.sign({ email }, process.env.TOKEN_VERIFICATION_SECRET, { expiresIn: '1h' });
+                const insertUser = "INSERT INTO users (name, email, joined) VALUES ($1, $2, $3);";
+                const insertUserValues = [name, email, new Date()];
+                const insertAuth = "INSERT INTO auth (email, hash, activation) VALUES ($1, $2, $3);"
+                const insertAuthValues = [email, hash, verificationToken];
+                
+                const insertUserResponse = await db.query(insertUser, insertUserValues);
+                const insertAuthResponse = await db.query(insertAuth, insertAuthValues);
+                if (insertUserResponse.rowCount > 0 && insertAuthResponse.rowCount > 0) {
+                    const mailInfo = await sendVerificationEmail(verificationToken);
+                    if (mailInfo.accepted.length === 0) {
+                        errors['register-message'] = "We couldn't send you a verification email. Please try again later."
                         const deleteUser = "DELETE FROM users WHERE email = $1";
                         const deleteAuth = "DELETE FROM auth WHERE email = $1";
                         const deleteValues = [email];
 
                         await db.query(deleteUser, deleteValues);
                         await db.query(deleteAuth, deleteValues);
-                        res.status(502).json({errors});
-                    } else if (insertUserResponse.rowCount > 0 && insertAuthResponse.rowCount > 0) {
-                        const transporter = nodemailer.createTransport({
-                            service: 'gmail',
-                            auth: {
-                                user: 'm4rck4n24@gmail.com',
-                                pass: process.env.MAIL_TOKEN
-                            }
-                        })
-                        const mailOptions = {
-                            from: '"Mastermind" <m4rck4n24@gmail.com>',
-                            to: email,
-                            subject: 'Verify you Mastermind account',
-                            html: `
-                                <html>
-                                <head>
-                                    <style>
-                                        h1 {
-                                            color: #00abb8;
-                                        }
-                                        a {
-                                            color: #ffc342;
-                                        }
-                                        a::hover, a:active {
-                                            color: #f6b831;
-                                        }
-                                    </style>
-                                </head>
-                                <body>
-                                    <h1>Hello! Please verify your Mastermind account:</h1>
-                                    <p>In order to be able to log in and use face detection on images through our app, you need to verify your account.</p>
-                                    <p>
-                                        Please click in the following link or copy and paste it into your browser: 
-                                    </p>
-                                    <p>
-                                        <a href="http://localhost:3001/email-verification/${verificationToken}">
-                                            http://localhost:3001/email-verification/${verificationToken}
-                                        </a>
-                                    </p>
-                                </body>
-                                <html>
-                            `
-                        }
-
-                        const mailInfo = await transporter.sendMail(mailOptions);
-                        if (mailInfo.accepted.length === 0) {
-                            errors['register-message'] = "We couldn't send you a verification email. Please try again later."
-                            res.status(502).json({errors});
-                        } else {
-                            res.send("success");
-                            // Redirect to email verification needed - Front end
-                        }
+                        return res.status(502).json({errors});
                     }
+                    
+                    return res.send("success");
+                    // Redirect to email verification needed - Front end
                 }
             } catch (err) {
                 console.log(err);
@@ -209,7 +211,6 @@ app.get('/email-verification/:verificationToken', (req, res) => {
                         if (updateAuthResponse.rowCount === 0) {
                             throw Error('Failed to update database.')
                         } else if (updateAuthResponse.rowCount > 0) {
-                            console.log('User activated');
                             res.send("success");
                             // Redirect to successful activation front-end -> /activation-success
                         }
