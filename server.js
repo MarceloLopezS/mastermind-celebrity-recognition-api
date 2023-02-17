@@ -118,7 +118,6 @@ app.post('/register', (req, res) => {
                         await db.query(deleteAuth, deleteValues);
                         res.status(502).json({errors});
                     } else if (insertUserResponse.rowCount > 0 && insertAuthResponse.rowCount > 0) {
-                        // Generate verification token
                         const transporter = nodemailer.createTransport({
                             service: 'gmail',
                             auth: {
@@ -167,7 +166,7 @@ app.post('/register', (req, res) => {
                             res.status(502).json({errors});
                         } else {
                             res.send("success");
-                            // Redirect to email verification
+                            // Redirect to email verification needed - Front end
                         }
                     }
                 }
@@ -186,7 +185,7 @@ app.get('/email-verification/:verificationToken', (req, res) => {
     const verificationToken = req.params.verificationToken;
     jwt.verify(verificationToken, process.env.TOKEN_VERIFICATION_SECRET, (err, decoded) => {
         if (err) {
-            // Redirect to error front-end
+            // Redirect to error front-end -> error/invalid-token
             res.status(400).send('The token is invalid. Please verify the link is correct.');
         } else {
             const activateUser = async () => {
@@ -207,12 +206,12 @@ app.get('/email-verification/:verificationToken', (req, res) => {
                         } else if (updateAuthResponse.rowCount > 0) {
                             console.log('User activated');
                             res.send("success");
-                            // Redirect to activation front-end
+                            // Redirect to successful activation front-end -> /activation-success
                         }
                     }
                 } catch (err) {
                     console.log(err);
-                    // Redirect to error front-end
+                    // Redirect to error front-end -> /error
                     res.status(400).send("Something went wrong during the activation process. Please try again later.");
                 }
             }
@@ -220,8 +219,6 @@ app.get('/email-verification/:verificationToken', (req, res) => {
             activateUser();
         }
     });
-
-    // Verify email and redirect to front-end
 })
 
 app.get('/face-detection', (req, res) => {
