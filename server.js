@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import bcrypt from 'bcrypt';
 import db from './database/db.js';
 import jwt from 'jsonwebtoken';
@@ -6,6 +7,7 @@ import nodemailer from 'nodemailer';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.post('/login', (req, res) => {
@@ -24,7 +26,10 @@ app.post('/login', (req, res) => {
     }
 
     if(Object.keys(errors).length > 0) {
-        res.status(400).json(errors);
+        res.status(400).json({
+            status: "user-errors",
+            errors
+        });
     } else {
         const authUser = async () => {
             const selectAuth = "SELECT * FROM auth WHERE email = $1";
@@ -32,29 +37,43 @@ app.post('/login', (req, res) => {
             try {
                 const selectAuthResponse = await db.query(selectAuth, authValues);
                 if (selectAuthResponse.rowCount === 0) {
-                    errors['login-message'] = "Incorrect email or password.";
-                    return res.status(400).json(errors);
+                    errors[loginMessage] = "Incorrect email or password.";
+                    return res.status(400).json({
+                        status: "fail",
+                        errors
+                    });
                 }
                 
                 const userAuthRow = selectAuthResponse.rows[0];
                 if (userAuthRow.activation !== 'active') {
-                    errors['login-message'] = "This account is not yet activated."
-                    return res.status(400).json(errors);
+                    errors[loginMessage] = "This account is not yet activated."
+                    return res.status(400).json({
+                        status: "fail",
+                        errors
+                    });
                 }
 
                 const hashMatch = await bcrypt.compare(password, userAuthRow.hash);
                 if (!hashMatch) {
-                    errors['login-message'] = "Incorrect email or password.";
-                    return res.status(400).json(errors);
+                    errors[loginMessage] = "Incorrect email or password.";
+                    return res.status(400).json({
+                        status: "fail",
+                        errors
+                    });
                 }
 
-                return res.send("success");
+                return res.json({
+                    status: "success"
+                });
                 // Create a user ID cookie.
                 // Redirect to /face-detection
             } catch (err) {
                 console.log(err);
-                errors['login-message'] = "There was an error in the login process. Please try again later.";
-                return res.status(502).json({errors});
+                errors[loginMessage] = "There was an error in the login process. Please try again later.";
+                return res.status(502).json({
+                    status: "fail",
+                    errors
+                });
             }
         }
 
@@ -77,8 +96,8 @@ app.post('/register', (req, res) => {
         }
     }
     if (!password) {
-        errors["user-password"] = "Please enter your password";
-    } else if ( password.length < 8) {
+        errors["user-password"] = "Please enter a password";
+    } else if ( password.split("").length < 8) {
         errors["user-password"] = "Password must have at least 8 characters";
     }
     if (!confirmPassword) {
@@ -91,7 +110,10 @@ app.post('/register', (req, res) => {
     }
 
     if(Object.keys(errors).length > 0) {
-        res.status(400).json(errors);
+        res.status(400).json({
+            status: "user-errors",
+            errors
+        });
     } else {
         const sendVerificationEmail = async (verificationToken) => {
             const transporter = nodemailer.createTransport({
@@ -149,8 +171,11 @@ app.post('/register', (req, res) => {
 
                 const selectUserResponse = await db.query(selectUser, selectUserValues);
                 if (selectUserResponse.rowCount > 0) {
-                    errors['register-message'] = "This email is already registered.";
-                    return res.status(400).json({errors})
+                    errors[registerMessage] = "This email is already registered.";
+                    return res.status(400).json({
+                        status: "fail",
+                        errors
+                    });
                 }
 
                 const verificationToken = jwt.sign({ email }, process.env.TOKEN_VERIFICATION_SECRET, { expiresIn: '1h' });
@@ -164,23 +189,31 @@ app.post('/register', (req, res) => {
                 if (insertUserResponse.rowCount > 0 && insertAuthResponse.rowCount > 0) {
                     const mailInfo = await sendVerificationEmail(verificationToken);
                     if (mailInfo.accepted.length === 0) {
-                        errors['register-message'] = "We couldn't send you a verification email. Please try again later."
+                        errors[registerMessage] = "We couldn't send you a verification email. Please try again later."
                         const deleteUser = "DELETE FROM users WHERE email = $1";
                         const deleteAuth = "DELETE FROM auth WHERE email = $1";
                         const deleteValues = [email];
 
                         await db.query(deleteUser, deleteValues);
                         await db.query(deleteAuth, deleteValues);
-                        return res.status(502).json({errors});
+                        return res.status(502).json({
+                            status: "fail",
+                            errors
+                        });
                     }
                     
-                    return res.send("success");
+                    return res.json({
+                        status: "success"
+                    });
                     // Redirect to email verification needed - Front end
                 }
             } catch (err) {
                 console.log(err);
-                errors['register-message'] = "There was an error in the registration process. Please try again later.";
-                res.status(502).json({errors});
+                errors[registerMessage] = "There was an error in the registration process. Please try again later.";
+                res.status(502).json({
+                    status: "fail",
+                    errors
+                });
             }
         }
 
@@ -192,8 +225,7 @@ app.get('/email-verification/:verificationToken', (req, res) => {
     const verificationToken = req.params.verificationToken;
     jwt.verify(verificationToken, process.env.TOKEN_VERIFICATION_SECRET, (err, decoded) => {
         if (err) {
-            // Redirect to error front-end -> error/invalid-token
-            res.status(400).send('The token is invalid. Please verify the link is correct.');
+            return res.redirect(302, "http://localhost:3000/email-verification/error/invalid-token");
         } else {
             const activateUser = async () => {
                 const email = decoded.email;
@@ -206,8 +238,7 @@ app.get('/email-verification/:verificationToken', (req, res) => {
                     }
 
                     if (selectAuthResponse.rows[0].activation === 'active') {
-                        return res.send("success");
-                        // Redirect to successful activation front-end -> /activation-success
+                        return res.redirect(302, "http://localhost:3000/email-verification/activation-success");
                     }
 
                     const updateAuth = "UPDATE auth SET activation = $1 WHERE email = $2";
@@ -218,12 +249,10 @@ app.get('/email-verification/:verificationToken', (req, res) => {
                         throw Error("Failed to update database.")
                     }
 
-                    return res.send("success");
-                    // Redirect to successful activation front-end -> /activation-success
+                    return res.redirect(302, "http://localhost:3000/email-verification/activation-success");
                 } catch (err) {
                     console.log(err);
-                    // Redirect to error front-end -> /error
-                    res.status(400).send("Something went wrong during the activation process. Please try again later.");
+                    return res.redirect(302, "http://localhost:3000/error");
                 }
             }
 
