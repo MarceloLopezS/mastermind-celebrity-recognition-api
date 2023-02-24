@@ -1,14 +1,37 @@
 import express from 'express';
 import cors from 'cors';
-import bcrypt from 'bcrypt';
+import cookieParser from 'cookie-parser';
 import db from './database/db.js';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 
 const app = express();
 
-app.use(cors());
+app.use(cors( {
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
+app.use(cookieParser());
 app.use(express.json());
+
+const authorizeUser = (req, res, next) => {
+    if (req.cookies.utoken && req.cookies.utoken.match(/\S+\.\S+\.\S+/)) {
+        const userToken = req.cookies.utoken;
+        jwt.verify(userToken, process.env.TOKEN_ACCESS_SECRET, (err, decoded) => {
+            if (err) {
+                req.authorizedUser = null;
+                next();
+            } else {
+                req.authorizedUser = decoded.email;
+                next();
+            }
+        });
+    } else {
+        req.authorizedUser = null;
+        next();
+    }
+}
 
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
@@ -37,7 +60,7 @@ app.post('/login', (req, res) => {
             try {
                 const selectAuthResponse = await db.query(selectAuth, authValues);
                 if (selectAuthResponse.rowCount === 0) {
-                    errors[loginMessage] = "Incorrect email or password.";
+                    errors["loginMessage"] = "Incorrect email or password.";
                     return res.status(400).json({
                         status: "fail",
                         errors
@@ -46,7 +69,7 @@ app.post('/login', (req, res) => {
                 
                 const userAuthRow = selectAuthResponse.rows[0];
                 if (userAuthRow.activation !== 'active') {
-                    errors[loginMessage] = "This account is not yet activated."
+                    errors["loginMessage"] = "This account is not yet activated."
                     return res.status(400).json({
                         status: "fail",
                         errors
@@ -55,21 +78,28 @@ app.post('/login', (req, res) => {
 
                 const hashMatch = await bcrypt.compare(password, userAuthRow.hash);
                 if (!hashMatch) {
-                    errors[loginMessage] = "Incorrect email or password.";
+                    errors["loginMessage"] = "Incorrect email or password.";
                     return res.status(400).json({
                         status: "fail",
                         errors
                     });
                 }
 
+                // Create a user token cookie.
+                const userToken = jwt.sign({ email }, process.env.TOKEN_ACCESS_SECRET);
+                const cookieOptions = {
+                    secure: false,
+                    httpOnly: true,
+                    sameSite: 'lax'
+                }
+                res.cookie("utoken", userToken, cookieOptions);
+                // Redirect to /face-detection
                 return res.json({
                     status: "success"
                 });
-                // Create a user ID cookie.
-                // Redirect to /face-detection
             } catch (err) {
                 console.log(err);
-                errors[loginMessage] = "There was an error in the login process. Please try again later.";
+                errors["loginMessage"] = "There was an error in the login process. Please try again later.";
                 return res.status(502).json({
                     status: "fail",
                     errors
@@ -79,6 +109,13 @@ app.post('/login', (req, res) => {
 
         authUser();
     }
+})
+
+app.post('/logout', (req, res) => {
+    res.clearCookie('utoken');
+    res.status(200).json({
+        status: 'success'
+    })
 })
 
 app.post('/register', (req, res) => {
@@ -171,7 +208,7 @@ app.post('/register', (req, res) => {
 
                 const selectUserResponse = await db.query(selectUser, selectUserValues);
                 if (selectUserResponse.rowCount > 0) {
-                    errors[registerMessage] = "This email is already registered.";
+                    errors["registerMessage"] = "This email is already registered.";
                     return res.status(400).json({
                         status: "fail",
                         errors
@@ -189,7 +226,7 @@ app.post('/register', (req, res) => {
                 if (insertUserResponse.rowCount > 0 && insertAuthResponse.rowCount > 0) {
                     const mailInfo = await sendVerificationEmail(verificationToken);
                     if (mailInfo.accepted.length === 0) {
-                        errors[registerMessage] = "We couldn't send you a verification email. Please try again later."
+                        errors["registerMessage"] = "We couldn't send you a verification email. Please try again later."
                         const deleteUser = "DELETE FROM users WHERE email = $1";
                         const deleteAuth = "DELETE FROM auth WHERE email = $1";
                         const deleteValues = [email];
@@ -203,13 +240,12 @@ app.post('/register', (req, res) => {
                     }
                     
                     return res.json({
-                        status: "success"
+                        status: "success" // Front end redirection to email verification needed
                     });
-                    // Redirect to email verification needed - Front end
                 }
             } catch (err) {
                 console.log(err);
-                errors[registerMessage] = "There was an error in the registration process. Please try again later.";
+                errors["registerMessage"] = "There was an error in the registration process. Please try again later.";
                 res.status(502).json({
                     status: "fail",
                     errors
@@ -261,8 +297,43 @@ app.get('/email-verification/:verificationToken', (req, res) => {
     });
 })
 
-app.get('/face-detection', (req, res) => {
-    // Once a user ID cookie is created, respond with the user's data.
+app.get('/user-info', authorizeUser, (req, res) => {
+    // Once a user auth cookie is created, respond with the user's data.
+    if (!req.authorizedUser) {
+        res.status(200).json({
+            status: 'unauthorized'
+        })
+    } else {
+        const sendUserData = async () => {
+            try {
+                const userEmail = req.authorizedUser;
+                const selectUserQuery = 'SELECT * FROM users WHERE email = $1';
+                const selectUserValues = [userEmail];
+
+                const selectUserResponse = await db.query(selectUserQuery, selectUserValues);
+                if (selectUserResponse.rowCount === 0) {
+                    return res.status(502).json({
+                        status: 'fail'
+                    })
+                }
+
+                return res.status(200).json({
+                    status: 'success',
+                    userInfo: {
+                        name: selectUserResponse.rows[0].name,
+                        entries: selectUserResponse.rows[0].entries
+                    }
+                })
+            } catch (err) {
+                console.log(err);
+                return res.status(502).json({
+                    status: 'fail'
+                })
+            }
+        }
+        
+        sendUserData();
+    }
 })
 
 app.put('/face-detection/image-entry', (req, res) => {
