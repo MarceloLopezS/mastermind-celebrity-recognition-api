@@ -5,7 +5,7 @@ const emailVerification = (req, res, next) => {
     const verificationToken = req.params.verificationToken;
     jwt.verify(verificationToken, process.env.TOKEN_VERIFICATION_SECRET, (err, decoded) => {
         if (err) {
-            return res.redirect(302, "http://localhost:3000/email-verification/error/invalid-token");
+            return res.redirect(302, `${process.env.FRONT_END_DOMAIN}/email-verification/error/invalid-token`);
         } else {
             const activateUser = async () => {
                 const email = decoded.email;
@@ -18,7 +18,7 @@ const emailVerification = (req, res, next) => {
                     }
 
                     if (selectAuthResponse.rows[0].activation === 'active') {
-                        return res.redirect(302, "http://localhost:3000/email-verification/activation-success");
+                        return res.redirect(302, `${process.env.FRONT_END_DOMAIN}/email-verification/activation-success`);
                     }
 
                     const updateAuth = "UPDATE auth SET activation = $1 WHERE email = $2";
@@ -29,10 +29,10 @@ const emailVerification = (req, res, next) => {
                         throw Error("Failed to update database.")
                     }
 
-                    return res.redirect(302, "http://localhost:3000/email-verification/activation-success");
+                    return res.redirect(302, `${process.env.FRONT_END_DOMAIN}/email-verification/activation-success`);
                 } catch (err) {
                     console.log(err);
-                    return res.redirect(302, "http://localhost:3000/error");
+                    return res.redirect(302, `${process.env.FRONT_END_DOMAIN}/error`);
                 }
             }
 

@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-const sendVerificationEmail = async (email, verificationToken) => {
+const sendVerificationEmail = async (serverDomain, email, verificationToken) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -34,8 +34,8 @@ const sendVerificationEmail = async (email, verificationToken) => {
                     Please click in the following link or copy and paste it into your browser: 
                 </p>
                 <p>
-                    <a href="http://localhost:3001/email-verification/${verificationToken}">
-                        http://localhost:3001/email-verification/${verificationToken}
+                    <a href="${serverDomain}/email-verification/${verificationToken}">
+                        ${serverDomain}/email-verification/${verificationToken}
                     </a>
                 </p>
             </body>

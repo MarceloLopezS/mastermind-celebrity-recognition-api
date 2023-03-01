@@ -1,8 +1,6 @@
 import fs from 'fs';
 import { ClarifaiStub, grpc } from 'clarifai-nodejs-grpc';
 
-const domain = "https://soft-humans-return-179-6-54-221.loca.lt";
-
 const faceDetection = (req, res, next) => {
     if (!req.authorizedUser) {
         fs.unlink(req.file.path, err => {
@@ -16,7 +14,7 @@ const faceDetection = (req, res, next) => {
     // Clarifai logic
     // console.log(req?.file);
     const imageFolder = req.file.destination.split("/").at(-1);
-    // const imageURL = `${domain}/${imageFolder}/${req.file.filename}`;
+    // const imageURL = `${process.env.SERVER_DOMAIN}/${imageFolder}/${req.file.filename}`;
     const imageURL = "https://occ-0-41-300.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbFI2wcwiGkHDdGWaw58hWgLETOBsbqqv6GbKnZFn3s_Y4fjw0Ys9DNYD5txnfV3oj9tgsBeaSnPcBOwQqQnpHVqHeQr9FtvVzaL.jpg?r=776";
     // console.log(imageURL);
 

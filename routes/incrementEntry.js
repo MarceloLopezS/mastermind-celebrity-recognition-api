@@ -1,5 +1,4 @@
 import db from '../database/db.js';
-import jwt from 'jsonwebtoken';
 
 const incrementEntry = async (req, res, next) => {
     if (!req.authorizedUser) {

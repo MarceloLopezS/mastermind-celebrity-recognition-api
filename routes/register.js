@@ -54,37 +54,38 @@ const register = (req, res, next) => {
                 }
 
                 const verificationToken = jwt.sign({ email }, process.env.TOKEN_VERIFICATION_SECRET, { expiresIn: '1h' });
+                
+                await db.query('BEGIN;');
                 const insertUser = "INSERT INTO users (name, email, joined) VALUES ($1, $2, $3);";
                 const insertUserValues = [name, email, new Date()];
+                const insertUserResponse = await db.query(insertUser, insertUserValues);
+
                 const insertAuth = "INSERT INTO auth (email, hash, activation) VALUES ($1, $2, $3);"
                 const insertAuthValues = [email, hash, verificationToken];
-                
-                const insertUserResponse = await db.query(insertUser, insertUserValues);
                 const insertAuthResponse = await db.query(insertAuth, insertAuthValues);
                 if (insertUserResponse.rowCount > 0 && insertAuthResponse.rowCount > 0) {
-                    const mailInfo = await sendVerificationEmail(email, verificationToken);
+                    const mailInfo = await sendVerificationEmail(process.env.SERVER_DOMAIN, email, verificationToken);
                     if (mailInfo.accepted.length === 0) {
-                        errors["registerMessage"] = "We couldn't send you a verification email. Please try again later."
-                        const deleteUser = "DELETE FROM users WHERE email = $1";
-                        const deleteAuth = "DELETE FROM auth WHERE email = $1";
-                        const deleteValues = [email];
-
-                        await db.query(deleteUser, deleteValues);
-                        await db.query(deleteAuth, deleteValues);
+                        await db.query('ROLLBACK;')
                         return res.status(502).json({
                             status: "fail",
-                            errors
                         });
                     }
                     
-                    return res.json({
+                    await db.query('COMMIT;')
+                    return res.status(200).json({
                         status: "success" // Front end redirection to email verification needed
                     });
                 }
+
+                return res.status(502).json({
+                    status: "fail"
+                });
             } catch (err) {
                 console.log(err);
+                await db.query('ROLLBACK;');
                 errors["registerMessage"] = "There was an error in the registration process. Please try again later.";
-                res.status(502).json({
+                return res.status(502).json({
                     status: "fail",
                     errors
                 });

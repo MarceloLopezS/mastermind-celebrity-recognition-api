@@ -30,7 +30,7 @@ if (!fs.existsSync('./uploads')) {
 const upload = multer({ storage });
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.FRONT_END_DOMAIN,
     credentials: true
 }))
 app.use(cookieParser());
