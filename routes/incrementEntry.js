@@ -19,7 +19,7 @@ const incrementEntry = async (req, res, next) => {
         })
     }
 
-    const newUserEntries = selectUserResponse.rows[0].entries + 1;
+    const newUserEntries = parseInt(selectUserResponse.rows[0].entries) + 1;
     const updateUserQuery = "UPDATE users SET entries = $1 WHERE email = $2";
     const updateUserValues = [newUserEntries, userEmail];
 
