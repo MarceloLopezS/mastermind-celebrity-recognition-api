@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import fs from 'fs';
 import multer from 'multer';
 import crypto from 'crypto';
 import login from './routes/login.js';
@@ -23,15 +24,24 @@ const storage = multer.diskStorage({
         callback(null, `${filename}.${fileOriginalExtension}`);
     }
 })
+if (!fs.existsSync('./uploads')) {
+    fs.mkdirSync('./uploads')
+}
 const upload = multer({ storage });
 
-app.use(cors( {
+app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true
-}));
+}))
 app.use(cookieParser());
 app.use(express.json());
+app.use('/uploads', express.static('uploads')); // Accessible at <domain>/uploads/<fileName>
 
+app.get('/', (req, res) => {
+    res.status(200).json({
+        status: "success"
+    })
+})
 app.post('/login', login);
 app.post('/logout', logout);
 app.post('/register', register);
