@@ -1,9 +1,6 @@
-import db from '../database/db.js';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import sendVerificationEmail from '../utilities/sendVerificationEmail.js';
 
-const register = (req, res, next) => {
+const register = (db, bcrypt, jwt) => (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
     const errors = {}; // Errors -> key = Input html id, value = Message
     if (!name) {

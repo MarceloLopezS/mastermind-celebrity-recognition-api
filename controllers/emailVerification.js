@@ -1,7 +1,4 @@
-import db from '../database/db.js';
-import jwt from 'jsonwebtoken';
-
-const emailVerification = (req, res, next) => {
+const emailVerification = (db, jwt) => (req, res) => {
     const verificationToken = req.params.verificationToken;
     jwt.verify(verificationToken, process.env.TOKEN_VERIFICATION_SECRET, (err, decoded) => {
         if (err) {

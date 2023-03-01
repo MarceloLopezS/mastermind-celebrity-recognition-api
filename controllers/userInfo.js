@@ -1,6 +1,4 @@
-import db from '../database/db.js';
-
-const userInfo = (req, res, next) => {
+const userInfo = (db) => (req, res) => {
     if (!req.authorizedUser) {
         res.status(200).json({
             status: 'unauthorized'

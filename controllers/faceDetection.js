@@ -1,7 +1,4 @@
-import fs from 'fs';
-import { ClarifaiStub, grpc } from 'clarifai-nodejs-grpc';
-
-const faceDetection = (req, res, next) => {
+const faceDetection = (fs, ClarifaiStub, grpc) => (req, res) => {
     if (!req.authorizedUser) {
         fs.unlink(req.file.path, err => {
             if (err) console.log(err);

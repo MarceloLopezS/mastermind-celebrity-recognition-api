@@ -1,6 +1,4 @@
-import db from '../database/db.js';
-
-const incrementEntry = async (req, res, next) => {
+const incrementEntry = (db) => async (req, res) => {
     if (!req.authorizedUser) {
         return res.status(403).json({
             status: 'unauthorized'

@@ -4,14 +4,18 @@ import cookieParser from 'cookie-parser';
 import fs from 'fs';
 import multer from 'multer';
 import crypto from 'crypto';
-import login from './routes/login.js';
-import logout from './routes/logout.js';
-import register from './routes/register.js';
-import emailVerification from './routes/emailVerification.js';
+import db from './database/db.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { ClarifaiStub, grpc } from 'clarifai-nodejs-grpc';
+import login from './controllers/login.js';
+import logout from './controllers/logout.js';
+import register from './controllers/register.js';
+import emailVerification from './controllers/emailVerification.js';
 import authorizeUser from './middlewares/authorizeUser.js';
-import userInfo from './routes/userInfo.js';
-import faceDetection from './routes/faceDetection.js';
-import incrementEntry from './routes/incrementEntry.js';
+import userInfo from './controllers/userInfo.js';
+import faceDetection from './controllers/faceDetection.js';
+import incrementEntry from './controllers/incrementEntry.js';
 
 const app = express();
 const storage = multer.diskStorage({
@@ -37,18 +41,14 @@ app.use(cookieParser());
 app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Accessible at <domain>/uploads/<fileName>
 
-app.get('/', (req, res) => {
-    res.status(200).json({
-        status: "success"
-    })
-})
-app.post('/login', login);
+app.get('/', (req, res) => res.status(200).json({ status: "success" }));
+app.post('/login', login(db, bcrypt, jwt));
 app.post('/logout', logout);
-app.post('/register', register);
-app.get('/email-verification/:verificationToken', emailVerification);
-app.get('/user-info', authorizeUser, userInfo);
-app.post('/face-detection', authorizeUser, upload.single('image-input'), faceDetection);
-app.put('/face-detection/increment-entry', authorizeUser, incrementEntry);
+app.post('/register', register(db, bcrypt, jwt));
+app.get('/email-verification/:verificationToken', emailVerification(db, jwt));
+app.get('/user-info', authorizeUser, userInfo(db));
+app.post('/face-detection', authorizeUser, upload.single('image-input'), faceDetection(fs, ClarifaiStub, grpc));
+app.put('/face-detection/increment-entry', authorizeUser, incrementEntry(db));
 
 app.listen(process.env.PORT || 3001, () => {
     console.log(`Listening to port ${process.env.PORT || 3001}`);

@@ -1,8 +1,4 @@
-import db from '../database/db.js';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-
-const login = (req, res, next) => {
+const login = (db, bcrypt, jwt) => (req, res) => {
     const { email, password } = req.body;
     const errors = {}; // Errors -> key = Input html id, value = Message
     if (!email) {

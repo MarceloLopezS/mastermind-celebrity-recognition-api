@@ -1,4 +1,4 @@
-const logout = (req, res, next) => {
+const logout = (req, res) => {
     res.clearCookie('utoken');
     res.status(200).json({
         status: 'success'
