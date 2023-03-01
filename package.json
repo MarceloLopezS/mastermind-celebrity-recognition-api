@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "startDev": "nodemon server.js"
+    "dev": "nodemon server.js"
   },
   "author": "Marcelo Lopez Silva",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "clarifai-nodejs-grpc": "^8.0.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
