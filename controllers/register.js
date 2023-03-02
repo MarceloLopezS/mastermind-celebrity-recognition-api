@@ -1,4 +1,5 @@
 import sendVerificationEmail from '../utilities/sendVerificationEmail.js';
+import deleteExpiredUsers from '../utilities/deleteExpiredUsers.js';
 
 const register = (db, bcrypt, jwt) => (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
@@ -35,11 +36,12 @@ const register = (db, bcrypt, jwt) => (req, res) => {
         });
     } else {
         const registerUser = async () => {
+            await deleteExpiredUsers(db);
             const saltRounds = 10;
             const hash = await bcrypt.hash(password, saltRounds);
             try {
-                const selectUser = "SELECT $1 FROM users WHERE email = $2";
-                const selectUserValues = ['activation', email];
+                const selectUser = "SELECT * FROM users WHERE email = $1";
+                const selectUserValues = [email];
 
                 const selectUserResponse = await db.query(selectUser, selectUserValues);
                 if (selectUserResponse.rowCount > 0) {
@@ -52,13 +54,13 @@ const register = (db, bcrypt, jwt) => (req, res) => {
 
                 const verificationToken = jwt.sign({ email }, process.env.TOKEN_VERIFICATION_SECRET, { expiresIn: '1h' });
                 
-                await db.query('BEGIN;');
+                await db.query('BEGIN;'); // PSQL transaction
                 const insertUser = "INSERT INTO users (name, email, joined) VALUES ($1, $2, $3);";
                 const insertUserValues = [name, email, new Date()];
                 const insertUserResponse = await db.query(insertUser, insertUserValues);
 
-                const insertAuth = "INSERT INTO auth (email, hash, activation) VALUES ($1, $2, $3);"
-                const insertAuthValues = [email, hash, verificationToken];
+                const insertAuth = "INSERT INTO auth (email, hash, activation, expiration) VALUES ($1, $2, $3, $4);";
+                const insertAuthValues = [email, hash, verificationToken, new Date(Date.now() + (24*60*60*1000))];
                 const insertAuthResponse = await db.query(insertAuth, insertAuthValues);
                 if (insertUserResponse.rowCount > 0 && insertAuthResponse.rowCount > 0) {
                     const mailInfo = await sendVerificationEmail(process.env.SERVER_DOMAIN, email, verificationToken);

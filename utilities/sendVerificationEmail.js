@@ -38,6 +38,11 @@ const sendVerificationEmail = async (serverDomain, email, verificationToken) => 
                         ${serverDomain}/email-verification/${verificationToken}
                     </a>
                 </p>
+                <p>
+                    This link will expire in 24 hours. If you did not signed for a Mastermind account, you can safely ignore this email.
+                </p>
+                <p>Best,</p>
+                <p>Mastermind Team</p>
             </body>
             <html>
         `
