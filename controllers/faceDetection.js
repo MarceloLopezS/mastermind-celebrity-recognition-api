@@ -9,11 +9,8 @@ const faceDetection = (fs, ClarifaiStub, grpc) => (req, res) => {
     }
 
     // Clarifai logic
-    // console.log(req?.file);
     const imageFolder = req.file.destination.split("/").at(-1);
-    // const imageURL = `${process.env.SERVER_DOMAIN}/${imageFolder}/${req.file.filename}`;
-    const imageURL = "https://occ-0-41-300.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbFI2wcwiGkHDdGWaw58hWgLETOBsbqqv6GbKnZFn3s_Y4fjw0Ys9DNYD5txnfV3oj9tgsBeaSnPcBOwQqQnpHVqHeQr9FtvVzaL.jpg?r=776";
-    // console.log(imageURL);
+    const imageURL = `${process.env.SERVER_DOMAIN}/${imageFolder}/${req.file.filename}`;
 
     const stub = ClarifaiStub.grpc();
     const metadata = new grpc.Metadata();
