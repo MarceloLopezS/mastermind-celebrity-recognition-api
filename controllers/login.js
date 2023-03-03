@@ -55,7 +55,7 @@ const login = (db, bcrypt, jwt) => (req, res) => {
                 const cookieOptions = {
                     secure: false,
                     httpOnly: true,
-                    sameSite: 'lax'
+                    sameSite: 'None'
                 }
                 res.cookie("utoken", userToken, cookieOptions);
                 // Redirect to /face-detection
