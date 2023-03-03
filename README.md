@@ -52,11 +52,11 @@ Finally, when the user recieves a positive response from the server once it has 
 
 ### **Note**
 
-All the requests send back a response, whether is a redirection or information in JSON format containing the status and additional information to be displayed in the Front-End.
+All the requests send back a response, whether it's a redirection or information in JSON format containing the status and additional information to be displayed in the Front-End.
 
-## **Conclusions**
+## **Conclusion**
 
-- In order to correctly and optimally process all requests and data, this part of the project is built using Node.js, Express.js, enviromental variables, PostgreSQL, CORS, Bcrypt, Json Web Token, Nodemailer, Cookie Parser, Multer and Clarifai API.
+In order to correctly and optimally process all requests and data, this part of the project is built using Node.js, Express.js, enviromental variables, PostgreSQL, CORS, Bcrypt, Json Web Token, Nodemailer, Cookie Parser, Multer and Clarifai API.
 
 ## **Useful info**
 
