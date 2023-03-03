@@ -53,9 +53,9 @@ const login = (db, bcrypt, jwt) => (req, res) => {
                 // Create a user token cookie.
                 const userToken = jwt.sign({ email }, process.env.TOKEN_ACCESS_SECRET);
                 const cookieOptions = {
-                    secure: false,
+                    secure: true, // false for local development
                     httpOnly: true,
-                    sameSite: 'None'
+                    sameSite: 'None' // 'lax' for local development
                 }
                 res.cookie("utoken", userToken, cookieOptions);
                 // Redirect to /face-detection
