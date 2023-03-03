@@ -1,5 +1,10 @@
 const logout = (req, res) => {
-    res.clearCookie('utoken');
+    const cookieOptions = {
+        secure: true, // false for local development
+        httpOnly: true,
+        sameSite: 'None' // 'lax' for local development
+    }
+    res.clearCookie('utoken', cookieOptions);
     res.status(200).json({
         status: 'success'
     })
