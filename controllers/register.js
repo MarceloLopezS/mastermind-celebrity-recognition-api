@@ -52,7 +52,7 @@ const register = (db, bcrypt, jwt) => (req, res) => {
                     });
                 }
 
-                const verificationToken = jwt.sign({ email }, process.env.TOKEN_VERIFICATION_SECRET, { expiresIn: '1h' });
+                const verificationToken = jwt.sign({ email }, process.env.TOKEN_VERIFICATION_SECRET, { expiresIn: '24h' });
                 
                 await db.query('BEGIN;'); // PSQL transaction
                 const insertUser = "INSERT INTO users (name, email, joined) VALUES ($1, $2, $3);";
