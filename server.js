@@ -23,8 +23,6 @@ const storage = multer.diskStorage({
         callback(null, './uploads');
     },
     filename: (req, file, callback) => {
-        if (!file?.originalname) return;
-        
         const filename = crypto.randomBytes(16).toString('hex');
         const fileOriginalExtension = file.originalname.split(".").at(-1);
         callback(null, `${filename}.${fileOriginalExtension}`);
