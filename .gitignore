@@ -3,3 +3,8 @@
 
 # Enviromental variables
 .env
+
+# Docker files for Fly.io deployment
+.dockerignore
+Dockerfile
+fly.toml

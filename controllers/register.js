@@ -1,4 +1,4 @@
-import sendVerificationEmail from '../utilities/sendVerificationEmail.js';
+import sendEmail from '../utilities/sendEmail.js';
 import deleteExpiredUsers from '../utilities/deleteExpiredUsers.js';
 
 const register = (db, bcrypt, jwt) => (req, res) => {
@@ -63,7 +63,45 @@ const register = (db, bcrypt, jwt) => (req, res) => {
                 const insertAuthValues = [email, hash, verificationToken, new Date(Date.now() + (24*60*60*1000))];
                 const insertAuthResponse = await db.query(insertAuth, insertAuthValues);
                 if (insertUserResponse.rowCount > 0 && insertAuthResponse.rowCount > 0) {
-                    const mailInfo = await sendVerificationEmail(process.env.SERVER_DOMAIN, email, verificationToken);
+                    const mailOptions = {
+                        to: email,
+                        subject: 'Verify you Mastermind account',
+                        html: `
+                            <html>
+                            <head>
+                                <style>
+                                    h1 {
+                                        color: #00abb8;
+                                    }
+                                    a {
+                                        color: #ffc342;
+                                    }
+                                    a::hover, a:active {
+                                        color: #f6b831;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <h1>Hello! Please verify your Mastermind account:</h1>
+                                <p>In order to be able to log in and use face detection on images through our app, you need to verify your account.</p>
+                                <p>
+                                    Please click in the following link or copy and paste it into your browser: 
+                                </p>
+                                <p>
+                                    <a href="${process.env.SERVER_DOMAIN}/email-verification/${verificationToken}">
+                                        ${process.env.SERVER_DOMAIN}/email-verification/${verificationToken}
+                                    </a>
+                                </p>
+                                <p>
+                                    This link will expire in 24 hours. If you did not signed for a Mastermind account, you can safely ignore this email.
+                                </p>
+                                <p>Best,</p>
+                                <p>Mastermind Team</p>
+                            </body>
+                            <html>
+                        `
+                    }
+                    const mailInfo = await sendEmail(mailOptions);
                     if (mailInfo.accepted.length === 0) {
                         await db.query('ROLLBACK;')
                         return res.status(502).json({
