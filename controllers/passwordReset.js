@@ -23,7 +23,7 @@ const passwordReset = (db, jwt, bcrypt) => (req, res) => {
         });
     } else {
         const changeUserPassword = async () => {
-            jwt.verify(resetToken, process.env.TOKEN_PASS_REset_SECRET, async (err, decoded) => {
+            jwt.verify(resetToken, process.env.TOKEN_PASS_RESET_SECRET, async (err, decoded) => {
                 if (err) {
                     return res.status(400).json({
                         status: "fail",
