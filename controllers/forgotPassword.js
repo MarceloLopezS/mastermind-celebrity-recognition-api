@@ -20,7 +20,7 @@ const forgotPassword = (db, jwt) => (req, res) => {
         });
     }
 
-    const sendRecoveryEmail = async () => {
+    const sendResetEmail = async () => {
         const selectUser = "SELECT * FROM users WHERE email = $1";
         const selectUserValues = [email];
         try {
@@ -32,10 +32,10 @@ const forgotPassword = (db, jwt) => (req, res) => {
                 })
             }
 
-            const recoveryToken = jwt.sign({ email }, process.env.TOKEN_PASS_RECOVERY_SECRET, { expiresIn: "15m" });
+            const resetToken = jwt.sign({ email }, process.env.TOKEN_PASS_RESET_SECRET, { expiresIn: "15m" });
             const mailOptions = {
                 to: email,
-                subject: "Password recovery",
+                subject: "Password reset",
                 html: `
                     <html>
                     <head>
@@ -52,15 +52,15 @@ const forgotPassword = (db, jwt) => (req, res) => {
                         </style>
                     </head>
                     <body>
-                        <h1>Hello! You requested a password recovery:</h1>
-                        <p>To proceed with the recovery, please click in the following link or paste it into your browser:</p>
+                        <h1>Hello! You requested a password reset:</h1>
+                        <p>To proceed with the reset, please click in the following link or paste it into your browser:</p>
                         <p>
-                            <a href="${process.env.FRONT_END_DOMAIN}/password-recovery/${recoveryToken}">
-                                ${process.env.FRONT_END_DOMAIN}/password-recovery/${recoveryToken}
+                            <a href="${process.env.FRONT_END_DOMAIN}/password-reset/${resetToken}">
+                                ${process.env.FRONT_END_DOMAIN}/password-reset/${resetToken}
                             </a>
                         </p>
                         <p>
-                            This link will expire in 15 minutes. If you did not asked for a password recovery, you can safely ignore this email.
+                            This link will expire in 15 minutes. If you did not asked for a password reset, you can safely ignore this email.
                         </p>
                         <p>Best,</p>
                         <p>Mastermind Team</p>
@@ -73,13 +73,13 @@ const forgotPassword = (db, jwt) => (req, res) => {
             if (mailInfo.accepted.length === 0) {
                 return res.status(502).json({
                     status: "fail",
-                    message: "We were not able to send the recovery mail. Please try again later."
+                    message: "We were not able to send the reset mail. Please try again later."
                 });
             }
 
             return res.status(200).json({
                 status: "success",
-                message: "We have successfully sent a recovery email. Please check your email inbox."
+                message: "We have successfully sent a reset email. Please check your email inbox."
             })
         } catch (err) {
             console.log(err);
@@ -90,7 +90,7 @@ const forgotPassword = (db, jwt) => (req, res) => {
         }
     }
     
-    sendRecoveryEmail();
+    sendResetEmail();
 }
 
 export default forgotPassword

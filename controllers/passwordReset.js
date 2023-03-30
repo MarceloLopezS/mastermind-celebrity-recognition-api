@@ -1,5 +1,5 @@
-const passwordRecovery = (db, jwt, bcrypt) => (req, res) => {
-    const { password, confirmPassword, recoveryToken } = req.body;
+const passwordReset = (db, jwt, bcrypt) => (req, res) => {
+    const { password, confirmPassword, resetToken } = req.body;
     const errors = {};
     
     if (!password) {
@@ -23,7 +23,7 @@ const passwordRecovery = (db, jwt, bcrypt) => (req, res) => {
         });
     } else {
         const changeUserPassword = async () => {
-            jwt.verify(recoveryToken, process.env.TOKEN_PASS_RECOVERY_SECRET, async (err, decoded) => {
+            jwt.verify(resetToken, process.env.TOKEN_PASS_REset_SECRET, async (err, decoded) => {
                 if (err) {
                     return res.status(400).json({
                         status: "fail",
@@ -40,7 +40,7 @@ const passwordRecovery = (db, jwt, bcrypt) => (req, res) => {
                     if (selectUserResponse.rows === 0) {
                         return res.status(502).json({
                             status: "fail",
-                            message: "We were not able to identify you. Please try making the recovery again."
+                            message: "We were not able to identify you. Please try making the reset process again."
                         })
                     }
                     
@@ -73,4 +73,4 @@ const passwordRecovery = (db, jwt, bcrypt) => (req, res) => {
         changeUserPassword();
     }
 }
-export default passwordRecovery
+export default passwordReset
