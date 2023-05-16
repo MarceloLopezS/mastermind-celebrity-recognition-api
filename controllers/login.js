@@ -25,28 +25,25 @@ const login = (db, bcrypt, jwt) => (req, res) => {
             try {
                 const selectAuthResponse = await db.query(selectAuth, authValues);
                 if (selectAuthResponse.rowCount === 0) {
-                    errors["loginMessage"] = "Incorrect email or password.";
                     return res.status(400).json({
                         status: "fail",
-                        errors
+                        fail: { message : "Incorrect email or password." }
                     });
                 }
                 
                 const userAuthRow = selectAuthResponse.rows[0];
                 if (userAuthRow.activation !== 'active') {
-                    errors["loginMessage"] = "This account is not yet activated."
                     return res.status(400).json({
                         status: "fail",
-                        errors
+                        fail: { message : "This account is not yet activated." }
                     });
                 }
 
                 const hashMatch = await bcrypt.compare(password, userAuthRow.hash);
                 if (!hashMatch) {
-                    errors["loginMessage"] = "Incorrect email or password.";
                     return res.status(400).json({
                         status: "fail",
-                        errors
+                        fail: { message : "Incorrect email or password." }
                     });
                 }
 
@@ -64,10 +61,9 @@ const login = (db, bcrypt, jwt) => (req, res) => {
                 });
             } catch (err) {
                 console.log(err);
-                errors["loginMessage"] = "There was an error in the login process. Please try again later.";
                 return res.status(502).json({
                     status: "fail",
-                    errors
+                    fail: { message : "There was an error in the login process. Please try again later." }
                 });
             }
         }

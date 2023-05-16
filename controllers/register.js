@@ -45,10 +45,9 @@ const register = (db, bcrypt, jwt) => (req, res) => {
 
                 const selectUserResponse = await db.query(selectUser, selectUserValues);
                 if (selectUserResponse.rowCount > 0) {
-                    errors["registerMessage"] = "This email is already registered.";
                     return res.status(400).json({
                         status: "fail",
-                        errors
+                        fail: { message : "This email is already registered." }
                     });
                 }
 
@@ -103,28 +102,26 @@ const register = (db, bcrypt, jwt) => (req, res) => {
                     }
                     const mailInfo = await sendEmail(mailOptions);
                     if (mailInfo.accepted.length === 0) {
-                        await db.query('ROLLBACK;')
+                        await db.query('ROLLBACK;');
                         return res.status(502).json({
                             status: "fail",
+                            fail: { message : "We were not able to send the activation email. Please try again later." }
                         });
                     }
                     
-                    await db.query('COMMIT;')
+                    await db.query('COMMIT;');
                     return res.status(200).json({
                         status: "success" // Front end redirection to email verification needed
                     });
                 }
 
-                return res.status(502).json({
-                    status: "fail"
-                });
+                throw Error("Failed to insert user or auth into database.");
             } catch (err) {
                 console.log(err);
                 await db.query('ROLLBACK;');
-                errors["registerMessage"] = "There was an error in the registration process. Please try again later.";
                 return res.status(502).json({
                     status: "fail",
-                    errors
+                    fail: { message : "There was an error in the registration process. Please try again later." }
                 });
             }
         }

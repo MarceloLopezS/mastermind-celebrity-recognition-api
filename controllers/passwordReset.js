@@ -27,7 +27,7 @@ const passwordReset = (db, jwt, bcrypt) => (req, res) => {
                 if (err) {
                     return res.status(400).json({
                         status: "fail",
-                        message: "The token is invalid, please check the link is complete and correct."
+                        fail : { message : "The token is invalid, please check the link is complete and correct." }
                     })
                 }
 
@@ -40,7 +40,7 @@ const passwordReset = (db, jwt, bcrypt) => (req, res) => {
                     if (selectUserResponse.rows === 0) {
                         return res.status(502).json({
                             status: "fail",
-                            message: "We were not able to identify you. Please try making the reset process again."
+                            fail : { message : "We were not able to identify you. Please try making the reset process again." }
                         })
                     }
                     
@@ -53,7 +53,7 @@ const passwordReset = (db, jwt, bcrypt) => (req, res) => {
                     if (updateAuthResponse.rowCount === 0) {
                         return res.status(502).json({
                             status: "fail",
-                            message: "We were not able to update the password. Please try again later."
+                            fail: { message : "We were not able to update the password. Please try again later." }
                         })
                     }
 
@@ -64,7 +64,7 @@ const passwordReset = (db, jwt, bcrypt) => (req, res) => {
                     console.log(err);
                     return res.status(502).json({
                         status: "fail",
-                        message: "There was an error in the process. Please try again later."
+                        fail : { message : "There was an error in the process. Please try again later." }
                     });
                 }
             })

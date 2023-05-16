@@ -28,7 +28,7 @@ const forgotPassword = (db, jwt) => (req, res) => {
             if (selectUserResponse.rowCount === 0) {
                 return res.status(400).json({
                     status: "fail",
-                    message: "This email is not registered."
+                    fail : { message : "This email is not registered." }
                 })
             }
 
@@ -73,19 +73,19 @@ const forgotPassword = (db, jwt) => (req, res) => {
             if (mailInfo.accepted.length === 0) {
                 return res.status(502).json({
                     status: "fail",
-                    message: "We were not able to send the reset mail. Please try again later."
+                    fail : { message : "We were not able to send the reset mail. Please try again later." }
                 });
             }
 
             return res.status(200).json({
                 status: "success",
-                message: "We have successfully sent a reset email. Please check your email inbox."
+                success: { message : "We have successfully sent a reset email. Please check your email inbox." }
             })
         } catch (err) {
             console.log(err);
             return res.status(502).json({
                 status: "fail",
-                message: "There was an error in the process. Please try again later."
+                fail: { message : "There was an error in the process. Please try again later." }
             });
         }
     }
