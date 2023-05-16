@@ -130,4 +130,4 @@ const register = (db, bcrypt, jwt) => (req, res) => {
     }
 }
 
-export default register;
+export default register

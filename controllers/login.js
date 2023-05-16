@@ -72,4 +72,4 @@ const login = (db, bcrypt, jwt) => (req, res) => {
     }
 }
 
-export default login;
+export default login

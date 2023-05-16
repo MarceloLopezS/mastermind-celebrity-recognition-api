@@ -18,4 +18,4 @@ const authorizeUser = (req, res, next) => {
     }
 }
 
-export default authorizeUser;
+export default authorizeUser

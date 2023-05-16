@@ -70,4 +70,4 @@ const faceDetection = (fs, ClarifaiStub, grpc) => (req, res) => {
     )
 }
 
-export default faceDetection;
+export default faceDetection

@@ -24,4 +24,4 @@ const deleteExpiredUsers = async (db) => {
     }
 }
 
-export default deleteExpiredUsers;
+export default deleteExpiredUsers

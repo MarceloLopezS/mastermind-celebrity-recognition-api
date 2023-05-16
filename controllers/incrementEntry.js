@@ -33,4 +33,4 @@ const incrementEntry = (db) => async (req, res) => {
     })
 }
 
-export default incrementEntry;
+export default incrementEntry
