@@ -1,6 +1,4 @@
 import pg from "pg"
-import * as dotenv from "dotenv"
-dotenv.config()
 
 const { Client } = pg
 const client = new Client({

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon --env-file=.env server.js"
   },
   "author": "Marcelo Lopez Silva",
   "license": "ISC",
@@ -15,7 +15,6 @@
     "clarifai-nodejs-grpc": "^8.0.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.5-lts.1",
