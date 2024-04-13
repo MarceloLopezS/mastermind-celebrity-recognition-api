@@ -17,7 +17,7 @@ const register = (db, bcrypt, jwt) => (req, res) => {
   }
   if (!password) {
     errors["user-password"] = "Please enter a password"
-  } else if (password.split("").length < 8) {
+  } else if (password.length < 8) {
     errors["user-password"] = "Password must have at least 8 characters"
   }
   if (!confirmPassword) {
