@@ -10,8 +10,7 @@ const register = (db, bcrypt, jwt) => (req, res) => {
   if (!email) {
     errors["user-email"] = "Please enter your email"
   } else {
-    const emailRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
     if (!email.match(emailRegex)) {
       errors["user-email"] = "Please enter a valid email"
     }
