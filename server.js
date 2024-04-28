@@ -13,6 +13,7 @@ import logout from "./controllers/logout.js"
 import register from "./controllers/register.js"
 import emailVerification from "./controllers/emailVerification.js"
 import authorizeUser from "./middlewares/authorizeUser.js"
+import checkUserAuthentication from "./controllers/checkAuthentication.js"
 import userInfo from "./controllers/userInfo.js"
 import forgotPassword from "./controllers/forgotPassword.js"
 import passwordReset from "./controllers/passwordReset.js"
@@ -52,6 +53,7 @@ app.post("/register", register(db, bcrypt, jwt))
 app.get("/email-verification/:verificationToken", emailVerification(db, jwt))
 app.post("/forgot-password", forgotPassword(db, jwt))
 app.post("/password-reset", passwordReset(db, jwt, bcrypt))
+app.get("/check-user-authentication", authorizeUser, checkUserAuthentication)
 app.get("/user-info", authorizeUser, userInfo(db))
 app.post(
   "/face-detection",
