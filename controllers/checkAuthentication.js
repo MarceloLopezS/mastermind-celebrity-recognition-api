@@ -1,5 +1,5 @@
 const checkUserAuthentication = (req, res) => {
-  if (!req.authorizedUser) return res.status(403).json({
+  if (!req.authorizedUser) return res.status(200).json({
     authenticated: false
   })
 
