@@ -17,7 +17,7 @@ const sendEmail = async mailOptions => {
     }
   })
   const mailInfo = await transporter.sendMail({
-    from: '"Mastermind" <m4rck4n24@gmail.com>',
+    from: `"Mastermind" <${process.env.EMAIL_USER}>`,
     ...mailOptions
   })
 
