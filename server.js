@@ -18,6 +18,7 @@ import checkUserAuthentication from "./controllers/checkAuthentication.js"
 import userInfo from "./controllers/userInfo.js"
 import forgotPassword from "./controllers/forgotPassword.js"
 import passwordReset from "./controllers/passwordReset.js"
+import demoFaceDetection from "./controllers/demoFaceDetection.js"
 import faceDetection from "./controllers/faceDetection.js"
 import incrementEntry from "./controllers/incrementEntry.js"
 
@@ -60,6 +61,7 @@ app.post("/forgot-password", forgotPassword(db, jwt))
 app.post("/password-reset", passwordReset(db, jwt, bcrypt))
 app.get("/check-user-authentication", authorizeUser, checkUserAuthentication)
 app.get("/user-info", authorizeUser, userInfo(db))
+app.post("/demo-face-detection/:demoId", demoFaceDetection)
 app.post(
   "/face-detection",
   authorizeUser,
