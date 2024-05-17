@@ -3,6 +3,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import fs from "fs"
 import multer from "multer"
+import errorHandler from "./controllers/errorHandler.js"
 import crypto from "crypto"
 import db from "./database/db.js"
 import bcrypt from "bcrypt"
@@ -66,6 +67,8 @@ app.post(
   faceDetection(fs, ClarifaiStub, grpc)
 )
 app.put("/face-detection/increment-entry", authorizeUser, incrementEntry(db))
+
+app.use(errorHandler)
 
 app.listen(process.env.PORT || 3001, () => {
   console.log(`Listening to port ${process.env.PORT || 3001}`)
