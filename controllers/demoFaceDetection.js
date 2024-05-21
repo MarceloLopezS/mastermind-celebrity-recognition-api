@@ -4,7 +4,7 @@ import asyncHandler from "express-async-handler"
 const DEMO_JSON_FOLDER = "../assets/demo_detection_data"
 
 const demoFaceDetection = asyncHandler(async (req, res) => {
-  const demoId = req.params.demoId
+  const { demoId } = req.body
 
   try {
     const filePath = new URL(
