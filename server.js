@@ -61,7 +61,7 @@ app.post("/forgot-password", forgotPassword(db, jwt))
 app.post("/password-reset", passwordReset(db, jwt, bcrypt))
 app.get("/check-user-authentication", authorizeUser, checkUserAuthentication)
 app.get("/user-info", authorizeUser, userInfo(db))
-app.post("/demo-face-detection/:demoId", demoFaceDetection)
+app.post("/demo-face-detection", demoFaceDetection)
 app.post(
   "/face-detection",
   authorizeUser,
