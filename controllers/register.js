@@ -101,8 +101,8 @@ const register = (db, bcrypt, jwt) => (req, res) => {
                                     Please click in the following link or copy and paste it into your browser: 
                                 </p>
                                 <p>
-                                    <a href="${process.env.SERVER_DOMAIN}/email-verification/${verificationToken}">
-                                        ${process.env.SERVER_DOMAIN}/email-verification/${verificationToken}
+                                    <a href="${process.env.APP_API_URL}/email-verification/${verificationToken}">
+                                        ${process.env.APP_API_URL}/email-verification/${verificationToken}
                                     </a>
                                 </p>
                                 <p>

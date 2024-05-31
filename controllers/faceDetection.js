@@ -10,7 +10,7 @@ const faceDetection = (fs, ClarifaiStub, grpc) => (req, res) => {
 
   // Clarifai logic
   const imageFolder = req.file.destination.split("/").at(-1)
-  const imageURL = `${process.env.SERVER_DOMAIN}/${imageFolder}/${req.file.filename}`
+  const imageURL = `${process.env.APP_API_URL}/${imageFolder}/${req.file.filename}`
 
   const stub = ClarifaiStub.grpc()
   const metadata = new grpc.Metadata()
