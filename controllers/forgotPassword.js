@@ -60,8 +60,8 @@ const forgotPassword = (db, jwt) => (req, res) => {
                         <h1>Hello! You requested a password reset:</h1>
                         <p>To proceed with the reset, please click in the following link or paste it into your browser:</p>
                         <p>
-                            <a href="${process.env.FRONT_END_DOMAIN}/password-reset/${resetToken}">
-                                ${process.env.FRONT_END_DOMAIN}/password-reset/${resetToken}
+                            <a href="${process.env.APP_FRONT_END_URL}/password-reset/${resetToken}">
+                                ${process.env.APP_FRONT_END_URL}/password-reset/${resetToken}
                             </a>
                         </p>
                         <p>

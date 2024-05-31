@@ -9,7 +9,7 @@ const emailVerification = (db, jwt) => (req, res) => {
       if (err) {
         return res.redirect(
           302,
-          `${process.env.FRONT_END_DOMAIN}/email-verification/error/invalid-token`
+          `${process.env.APP_FRONT_END_URL}/email-verification/error/invalid-token`
         )
       }
 
@@ -29,7 +29,7 @@ const emailVerification = (db, jwt) => (req, res) => {
           if (
             selectAuthResponse.rows[0].expiration !== "infinity" &&
             stringDateToTimestamp(selectAuthResponse.rows[0].expiration) <
-              Date.now()
+            Date.now()
           ) {
             throw Error("Activation link expired.")
           }
@@ -37,7 +37,7 @@ const emailVerification = (db, jwt) => (req, res) => {
           if (selectAuthResponse.rows[0].activation === "active") {
             return res.redirect(
               302,
-              `${process.env.FRONT_END_DOMAIN}/email-verification/activation-success`
+              `${process.env.APP_FRONT_END_URL}/email-verification/activation-success`
             )
           }
 
@@ -55,11 +55,11 @@ const emailVerification = (db, jwt) => (req, res) => {
 
           return res.redirect(
             302,
-            `${process.env.FRONT_END_DOMAIN}/email-verification/activation-success`
+            `${process.env.APP_FRONT_END_URL}/email-verification/activation-success`
           )
         } catch (err) {
           console.log(err)
-          return res.redirect(302, `${process.env.FRONT_END_DOMAIN}/error`)
+          return res.redirect(302, `${process.env.APP_FRONT_END_URL}/error`)
         }
       }
 
