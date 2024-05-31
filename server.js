@@ -38,7 +38,7 @@ if (!fs.existsSync("./uploads")) {
 }
 const upload = multer({ storage })
 
-const corsWhitelist = [process.env.FRONT_END_DOMAIN]
+const corsWhitelist = [process.env.APP_FRONT_END_URL]
 app.use(
   cors({
     origin: (origin, callback) => {
