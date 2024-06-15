@@ -1,7 +1,7 @@
 import Account from "../entities/account.js"
 import User from "../entities/user.js"
 
-const registerUser = (userModel) => async (
+const registerUser = (registerModel) => async (
   { name, email, password }
 ) => {
   const user = new User(
@@ -9,7 +9,7 @@ const registerUser = (userModel) => async (
   )
   const account = new Account({ email, password })
 
-  return await userModel.register(user, account)
+  return await registerModel.register(user, account)
 }
 
 export default registerUser
