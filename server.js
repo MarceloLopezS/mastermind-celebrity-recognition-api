@@ -11,8 +11,6 @@ import jwt from "jsonwebtoken"
 import { ClarifaiStub, grpc } from "clarifai-nodejs-grpc"
 import login from "./controllers/login.js"
 import logout from "./controllers/logout.js"
-import register from "./controllers/register.js"
-import emailVerification from "./controllers/emailVerification.js"
 import authorizeUser from "./middlewares/authorizeUser.js"
 import checkUserAuthentication from "./controllers/checkAuthentication.js"
 import userInfo from "./controllers/userInfo.js"
@@ -21,6 +19,8 @@ import passwordReset from "./controllers/passwordReset.js"
 import demoFaceDetection from "./controllers/demoFaceDetection.js"
 import faceDetection from "./controllers/faceDetection.js"
 import incrementEntry from "./controllers/incrementEntry.js"
+import registerRouter from "./routes/register.js"
+import emailVerificationRouter from "./routes/emailVerification.js"
 
 const app = express()
 const storage = multer.diskStorage({
@@ -55,8 +55,8 @@ app.use("/uploads", express.static("uploads")) // Accessible at <domain>/uploads
 app.get("/", (req, res) => res.status(200).json({ status: "success" }))
 app.post("/login", login(db, bcrypt, jwt))
 app.post("/logout", logout)
-app.post("/register", register(db, bcrypt, jwt))
-app.get("/email-verification/:verificationToken", emailVerification(db, jwt))
+app.use("/register", registerRouter)
+app.use("/email-verification", emailVerificationRouter)
 app.post("/forgot-password", forgotPassword(db, jwt))
 app.post("/password-reset", passwordReset(db, jwt, bcrypt))
 app.get("/check-user-authentication", authorizeUser, checkUserAuthentication)
