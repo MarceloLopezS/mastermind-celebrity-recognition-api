@@ -32,7 +32,7 @@ class Account {
       )
     }
 
-    this.expiration = timestamp
+    this.#expiration = timestamp
   }
 }
 
