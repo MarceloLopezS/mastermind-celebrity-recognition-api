@@ -1,14 +1,38 @@
 class User {
+  #entries
+  #joined
+
   constructor(
-    { name, email, password, entries, joined, activation, expiration }
+    { name, email }
   ) {
     this.name = name
     this.email = email
-    this.entries = entries
-    this.joined = joined
-    this.password = password
-    this.activation = activation
-    this.expiration = expiration
+  }
+
+  get entries() {
+    return this.#entries || 0
+  }
+
+  setEntriesCount(count) {
+    if (isNaN(count)) {
+      throw new Error(
+        "Entries count must be a number equal or greater than 0."
+      )
+    }
+
+    this.#entries = count
+  }
+
+  get joined() {
+    return this.#joined || null
+  }
+
+  setJoinedTimestamp(timestamp) {
+    if (isNaN(timestamp)) {
+      throw new Error("Timestamp required to set a join date.")
+    }
+
+    this.#joined = timestamp
   }
 }
 
