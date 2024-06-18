@@ -19,6 +19,7 @@ import demoFaceDetection from "./controllers/demoFaceDetection.js"
 import faceDetection from "./controllers/faceDetection.js"
 import incrementEntry from "./controllers/incrementEntry.js"
 import loginRouter from "./routes/login.js"
+import logoutRouter from "./routes/logout.js"
 import registerRouter from "./routes/register.js"
 import emailVerificationRouter from "./routes/emailVerification.js"
 
@@ -54,7 +55,7 @@ app.use("/uploads", express.static("uploads")) // Accessible at <domain>/uploads
 
 app.get("/", (req, res) => res.status(200).json({ status: "success" }))
 app.use("/login", loginRouter)
-app.post("/logout", logout)
+app.use("/logout", logoutRouter)
 app.use("/register", registerRouter)
 app.use("/email-verification", emailVerificationRouter)
 app.post("/forgot-password", forgotPassword(db, jwt))
