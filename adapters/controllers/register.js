@@ -1,4 +1,4 @@
-import { isValidEmail } from "../../utilities/functions"
+import { isValidEmail } from "../../utilities/functions.js"
 
 class RegisterController {
   #registerUser
