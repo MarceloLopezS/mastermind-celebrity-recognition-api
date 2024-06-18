@@ -1,3 +1,5 @@
+import { isValidEmail } from "../../utilities/functions"
+
 class RegisterController {
   #registerUser
 
@@ -15,8 +17,7 @@ class RegisterController {
     if (!email) {
       errors["user-email"] = "Please enter your email"
     } else {
-      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-      if (!email.match(emailRegex)) {
+      if (!isValidEmail(email)) {
         errors["user-email"] = "Please enter a valid email"
       }
     }
@@ -42,7 +43,7 @@ class RegisterController {
     } else {
       try {
         const result = await this.#registerUser({ name, email, password })
-        if (result?.status === "success") res.status(200).json(result)
+        if (result.status === "success") res.status(200).json(result)
       } catch (err) {
         console.log(err)
         res.status(502).json({
