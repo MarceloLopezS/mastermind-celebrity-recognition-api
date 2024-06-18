@@ -2,21 +2,21 @@ import { Router } from "express"
 import jwt from "jsonwebtoken"
 import db from "../database/db.js"
 import activateAccount from "../usecases/activateAccount.js"
-import AccountModel from "../adapters/models/account.js"
-import AccountController from "../adapters/controllers/account.js"
+import { ActivationModel } from "../adapters/models/account.js"
+import { ActivationController } from "../adapters/controllers/account.js"
 
 const emailVerificationRouter = Router()
 
-const accountModel = new AccountModel(db)
-const handleAccountActivation = activateAccount(accountModel)
+const activationModel = new ActivationModel(db)
+const handleAccountActivation = activateAccount(activationModel)
 const tokenVerifyHandler = (token, callback) =>
   jwt.verify(token, process.env.TOKEN_VERIFICATION_SECRET, callback)
-const accountController =
-  new AccountController(handleAccountActivation, tokenVerifyHandler)
+const activationController =
+  new ActivationController(handleAccountActivation, tokenVerifyHandler)
 
 emailVerificationRouter.get(
   "/:verificationToken",
-  accountController.activate
+  activationController.activate
 )
 
 export default emailVerificationRouter

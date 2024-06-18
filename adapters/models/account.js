@@ -1,6 +1,6 @@
 import { stringDateToTimestamp } from "../../utilities/functions.js"
 
-class AccountModel {
+export class ActivationModel {
   #db
 
   constructor(db) {
@@ -52,5 +52,3 @@ class AccountModel {
     return { status: "success" }
   }
 }
-
-export default AccountModel
