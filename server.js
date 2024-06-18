@@ -9,7 +9,6 @@ import db from "./database/db.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { ClarifaiStub, grpc } from "clarifai-nodejs-grpc"
-import login from "./controllers/login.js"
 import logout from "./controllers/logout.js"
 import authorizeUser from "./middlewares/authorizeUser.js"
 import checkUserAuthentication from "./controllers/checkAuthentication.js"
@@ -19,6 +18,7 @@ import passwordReset from "./controllers/passwordReset.js"
 import demoFaceDetection from "./controllers/demoFaceDetection.js"
 import faceDetection from "./controllers/faceDetection.js"
 import incrementEntry from "./controllers/incrementEntry.js"
+import loginRouter from "./routes/login.js"
 import registerRouter from "./routes/register.js"
 import emailVerificationRouter from "./routes/emailVerification.js"
 
@@ -53,7 +53,7 @@ app.use(express.json())
 app.use("/uploads", express.static("uploads")) // Accessible at <domain>/uploads/<fileName>
 
 app.get("/", (req, res) => res.status(200).json({ status: "success" }))
-app.post("/login", login(db, bcrypt, jwt))
+app.use("/login", loginRouter)
 app.post("/logout", logout)
 app.use("/register", registerRouter)
 app.use("/email-verification", emailVerificationRouter)
