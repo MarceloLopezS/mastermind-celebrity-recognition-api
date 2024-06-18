@@ -1,5 +1,3 @@
-import { stringDateToTimestamp } from "../../utilities/functions.js"
-
 class RegisterModel {
   #db
   #hash
