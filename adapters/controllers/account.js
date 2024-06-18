@@ -1,4 +1,4 @@
-class AccountController {
+export class ActivationController {
   #activateAccount
   #verifyToken
 
@@ -42,5 +42,3 @@ class AccountController {
     )
   }
 }
-
-export default AccountController
