@@ -60,3 +60,12 @@ export class LoginController {
     }
   }
 }
+
+export class LogoutController {
+  logout = async (req, res) => {
+    res.clearCookie(SESSION_TOKEN_KEY, COOKIE_OPTIONS)
+    res.status(200).json({
+      status: "success"
+    })
+  }
+}
