@@ -84,3 +84,58 @@ export class PasswordResetValidationModel {
     }
   }
 }
+
+export class PasswordResetModel {
+  #db
+  #hash
+
+  constructor(db, passwordHashHandler) {
+    this.#db = db
+    this.#hash = passwordHashHandler
+  }
+
+  reset = async (account) => {
+    const { email, password } = account
+    const selectUser = "SELECT * FROM users WHERE email = $1"
+    const selectUserValues = [email]
+
+    const selectUserResponse = await this.#db.query(
+      selectUser,
+      selectUserValues
+    )
+    if (selectUserResponse.rows === 0) {
+      return {
+        status: "fail",
+        statusCode: 502,
+        fail: {
+          message:
+            "We were not able to identify you. Please try making the reset process again."
+        }
+      }
+    }
+
+    const hash = await this.#hash(password)
+    const updateAuth = "UPDATE auth SET hash = $1 WHERE email = $2"
+    const updateAuthValues = [hash, email]
+
+    const updateAuthResponse = await this.#db.query(
+      updateAuth,
+      updateAuthValues
+    )
+    if (updateAuthResponse.rowCount === 0) {
+      return {
+        status: "fail",
+        statusCode: 502,
+        fail: {
+          message:
+            "We were not able to update the password. Please try again later."
+        }
+      }
+    }
+
+    return {
+      status: "success",
+      statusCode: 200
+    }
+  }
+}
