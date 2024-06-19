@@ -12,7 +12,6 @@ import { ClarifaiStub, grpc } from "clarifai-nodejs-grpc"
 import authorizeUser from "./middlewares/authorizeUser.js"
 import checkUserAuthentication from "./controllers/checkAuthentication.js"
 import userInfo from "./controllers/userInfo.js"
-import passwordReset from "./controllers/passwordReset.js"
 import demoFaceDetection from "./controllers/demoFaceDetection.js"
 import faceDetection from "./controllers/faceDetection.js"
 import incrementEntry from "./controllers/incrementEntry.js"
@@ -21,6 +20,7 @@ import logoutRouter from "./routes/logout.js"
 import registerRouter from "./routes/register.js"
 import emailVerificationRouter from "./routes/emailVerification.js"
 import forgotPasswordRouter from "./routes/forgotPassword.js"
+import passwordResetRouter from "./routes/passwordReset.js"
 
 const app = express()
 const storage = multer.diskStorage({
@@ -58,7 +58,7 @@ app.use("/logout", logoutRouter)
 app.use("/register", registerRouter)
 app.use("/email-verification", emailVerificationRouter)
 app.use("/forgot-password", forgotPasswordRouter)
-app.post("/password-reset", passwordReset(db, jwt, bcrypt))
+app.use("/password-reset", passwordResetRouter)
 app.get("/check-user-authentication", authorizeUser, checkUserAuthentication)
 app.get("/user-info", authorizeUser, userInfo(db))
 app.post("/demo-face-detection", demoFaceDetection)
