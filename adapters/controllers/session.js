@@ -69,3 +69,15 @@ export class LogoutController {
     })
   }
 }
+
+export class AuthCheckController {
+  checkAuth = async (req, res) => {
+    if (!req.authorizedUser) return res.status(200).json({
+      authenticated: false
+    })
+
+    return res.status(200).json({
+      authenticated: true
+    })
+  }
+}
