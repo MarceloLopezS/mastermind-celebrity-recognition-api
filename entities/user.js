@@ -1,12 +1,25 @@
 class User {
+  #name
   #entries
   #joined
 
   constructor(
     { name, email }
   ) {
-    this.name = name
+    this.#name = name
     this.email = email
+  }
+
+  get name() {
+    return this.#name || undefined
+  }
+
+  setUserName(name) {
+    if (typeof name !== "string") {
+      throw new TypeError("Username must be a string.")
+    }
+
+    this.#name = name
   }
 
   get entries() {
