@@ -21,6 +21,7 @@ import emailVerificationRouter from "./routes/emailVerification.js"
 import forgotPasswordRouter from "./routes/forgotPassword.js"
 import passwordResetRouter from "./routes/passwordReset.js"
 import checkUserAuthenticationRouter from "./routes/checkUserAuthentication.js"
+import userInfoRouter from "./routes/userInfo.js"
 
 const app = express()
 const storage = multer.diskStorage({
@@ -63,7 +64,7 @@ app.use("/check-user-authentication",
   authorizeUser,
   checkUserAuthenticationRouter
 )
-app.get("/user-info", authorizeUser, userInfo(db))
+app.use("/user-info", authorizeUser, userInfoRouter)
 app.post("/demo-face-detection", demoFaceDetection)
 app.post(
   "/face-detection",
