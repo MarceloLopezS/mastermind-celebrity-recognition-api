@@ -10,7 +10,6 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { ClarifaiStub, grpc } from "clarifai-nodejs-grpc"
 import authorizeUser from "./middlewares/authorizeUser.js"
-import checkUserAuthentication from "./controllers/checkAuthentication.js"
 import userInfo from "./controllers/userInfo.js"
 import demoFaceDetection from "./controllers/demoFaceDetection.js"
 import faceDetection from "./controllers/faceDetection.js"
@@ -21,6 +20,7 @@ import registerRouter from "./routes/register.js"
 import emailVerificationRouter from "./routes/emailVerification.js"
 import forgotPasswordRouter from "./routes/forgotPassword.js"
 import passwordResetRouter from "./routes/passwordReset.js"
+import checkUserAuthenticationRouter from "./routes/checkUserAuthentication.js"
 
 const app = express()
 const storage = multer.diskStorage({
@@ -59,7 +59,10 @@ app.use("/register", registerRouter)
 app.use("/email-verification", emailVerificationRouter)
 app.use("/forgot-password", forgotPasswordRouter)
 app.use("/password-reset", passwordResetRouter)
-app.get("/check-user-authentication", authorizeUser, checkUserAuthentication)
+app.use("/check-user-authentication",
+  authorizeUser,
+  checkUserAuthenticationRouter
+)
 app.get("/user-info", authorizeUser, userInfo(db))
 app.post("/demo-face-detection", demoFaceDetection)
 app.post(
