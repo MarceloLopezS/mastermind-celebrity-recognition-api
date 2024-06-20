@@ -11,7 +11,7 @@ class User {
   }
 
   get name() {
-    return this.#name || undefined
+    return this.#name || null
   }
 
   setUserName(name) {
