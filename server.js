@@ -11,7 +11,6 @@ import jwt from "jsonwebtoken"
 import { ClarifaiStub, grpc } from "clarifai-nodejs-grpc"
 import authorizeUser from "./middlewares/authorizeUser.js"
 import userInfo from "./controllers/userInfo.js"
-import demoFaceDetection from "./controllers/demoFaceDetection.js"
 import faceDetection from "./controllers/faceDetection.js"
 import incrementEntry from "./controllers/incrementEntry.js"
 import loginRouter from "./routes/login.js"
@@ -22,6 +21,7 @@ import forgotPasswordRouter from "./routes/forgotPassword.js"
 import passwordResetRouter from "./routes/passwordReset.js"
 import checkUserAuthenticationRouter from "./routes/checkUserAuthentication.js"
 import userInfoRouter from "./routes/userInfo.js"
+import demoFaceDetectionRouter from "./routes/demoFaceDetection.js"
 
 const app = express()
 const storage = multer.diskStorage({
@@ -65,7 +65,7 @@ app.use("/check-user-authentication",
   checkUserAuthenticationRouter
 )
 app.use("/user-info", authorizeUser, userInfoRouter)
-app.post("/demo-face-detection", demoFaceDetection)
+app.use("/demo-face-detection", demoFaceDetectionRouter)
 app.post(
   "/face-detection",
   authorizeUser,
