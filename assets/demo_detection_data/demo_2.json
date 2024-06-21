@@ -1,1 +1,1 @@
-{"status":"success","detectionData":[{"boundingBox":{"top_row":0.1879015564918518,"left_col":0.3001925051212311,"bottom_row":0.7377412915229797,"right_col":0.6909029483795166},"faceDetection":{"name":"helen mccrory","probability":0.570691454410553}}]}
+{"regions":[{"boundingBox":{"top_row":0.1879015564918518,"left_col":0.3001925051212311,"bottom_row":0.7377412915229797,"right_col":0.6909029483795166},"faceDetection":{"name":"helen mccrory","probability":0.570691454410553}}]}

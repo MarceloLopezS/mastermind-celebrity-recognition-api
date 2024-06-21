@@ -1,1 +1,1 @@
-{"status":"success","detectionData":[{"boundingBox":{"top_row":0.007273346651345491,"left_col":0.15975859761238098,"bottom_row":0.8115010261535645,"right_col":0.838550329208374},"faceDetection":{"name":"anthony hopkins","probability":0.7169649064540863}}]}
+{"regions":[{"boundingBox":{"top_row":0.007273346651345491,"left_col":0.15975859761238098,"bottom_row":0.8115010261535645,"right_col":0.838550329208374},"faceDetection":{"name":"anthony hopkins","probability":0.7169649064540863}}]}
