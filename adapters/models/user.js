@@ -34,3 +34,44 @@ export class UserInfoModel {
     }
   }
 }
+
+export class UserEntriesModel {
+  #db
+
+  constructor(db) {
+    this.#db = db
+  }
+
+  incrementDetectionEntry = async (user) => {
+    const selectUserQuery = "SELECT * FROM users WHERE email = $1"
+    const selectUserValues = [user.email]
+
+    const selectUserResponse =
+      await this.#db.query(selectUserQuery, selectUserValues)
+    if (selectUserResponse.rowCount === 0) {
+      return {
+        status: "fail",
+        statusCode: 500
+      }
+    }
+
+    const newUserEntries = parseInt(selectUserResponse.rows[0].entries) + 1
+    user.setEntriesCount(newUserEntries)
+
+    const updateUserQuery = "UPDATE users SET entries = $1 WHERE email = $2"
+    const updateUserValues = [user.entries, user.email]
+
+    const updateUserResponse =
+      await this.#db.query(updateUserQuery, updateUserValues)
+    if (updateUserResponse.rowCount === 0) {
+      return {
+        status: "fail",
+        statusCode: 500
+      }
+    }
+
+    return {
+      status: "success"
+    }
+  }
+}
