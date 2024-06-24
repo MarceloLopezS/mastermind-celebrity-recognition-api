@@ -24,20 +24,6 @@ import demoFaceDetectionRouter from "./routes/demoFaceDetection.js"
 import faceDetectionRouter from "./routes/faceDetection.js"
 
 const app = express()
-const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, "./uploads")
-  },
-  filename: (req, file, callback) => {
-    const filename = crypto.randomBytes(16).toString("hex")
-    const fileOriginalExtension = file.originalname.split(".").at(-1)
-    callback(null, `${filename}.${fileOriginalExtension}`)
-  }
-})
-if (!fs.existsSync("./uploads")) {
-  fs.mkdirSync("./uploads")
-}
-const upload = multer({ storage })
 
 const corsWhitelist = [process.env.APP_FRONT_END_URL]
 app.use(
@@ -69,10 +55,8 @@ app.use("/demo-face-detection", demoFaceDetectionRouter)
 app.use(
   "/face-detection",
   authorizeUser,
-  upload.single("image-input"),
   faceDetectionRouter
 )
-app.put("/face-detection/increment-entry", authorizeUser, incrementEntry(db))
 
 app.use(errorHandler)
 
