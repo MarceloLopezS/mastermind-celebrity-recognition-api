@@ -67,7 +67,7 @@ export class DetectionModel {
             ))
           }
 
-          const rawRegions = response.outputs[0].data
+          const rawRegions = response.outputs[0].data.regions
 
           const regions = rawRegions.map(region => {
             const detection = new Detection()
