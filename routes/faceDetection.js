@@ -15,7 +15,7 @@ const faceDetectionRouter = Router()
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, "../uploads")
+    callback(null, "./uploads")
   },
   filename: (req, file, callback) => {
     const filename = crypto.randomBytes(16).toString("hex")
@@ -23,8 +23,8 @@ const storage = multer.diskStorage({
     callback(null, `${filename}.${fileOriginalExtension}`)
   }
 })
-if (!fs.existsSync("../uploads")) {
-  fs.mkdirSync("../uploads")
+if (!fs.existsSync("./uploads")) {
+  fs.mkdirSync("./uploads")
 }
 const upload = multer({ storage })
 
