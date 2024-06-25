@@ -71,7 +71,8 @@ export class UserEntriesModel {
     }
 
     return {
-      status: "success"
+      status: "success",
+      statusCode: 200
     }
   }
 }
