@@ -45,7 +45,7 @@ export class LoginController {
           const { userToken } = result.success
 
           res.cookie(SESSION_TOKEN_KEY, userToken, COOKIE_OPTIONS)
-          res.status(400).json({ status: "success" })
+          res.status(200).json({ status: "success" })
         }
       } catch (err) {
         console.log(err)
