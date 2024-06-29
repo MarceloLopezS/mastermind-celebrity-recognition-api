@@ -18,8 +18,8 @@ import faceDetectionRouter from "./routes/faceDetection.js"
 const app = express()
 
 const limiter = rateLimit({
-  windowMs: 1000 * 60, //12h
-  limit: 1,
+  windowMs: 1000 * 60 * 60 * 12, //12h
+  limit: 100,
   message: "You have reached your detection requests limit."
     + " " + "Come back later.",
   keyGenerator: (req, res) => req.authorizedUser,
