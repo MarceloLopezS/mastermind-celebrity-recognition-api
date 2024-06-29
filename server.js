@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import { rateLimit } from "express-rate-limit"
 import errorHandler from "./middlewares/errorHandler.js"
 import authorizeUser from "./middlewares/authorizeUser.js"
 import loginRouter from "./routes/login.js"
@@ -16,6 +17,25 @@ import faceDetectionRouter from "./routes/faceDetection.js"
 
 const app = express()
 
+const limiter = rateLimit({
+  windowMs: 1000 * 60 * 60 * 12, //12h
+  limit: 100,
+  message: "You have reached your detection requests limit."
+    + " " + "Come back later.",
+  keyGenerator: (req, res) => req.authorizedUser,
+  handler: (req, res, next, options) => {
+    if (req.rateLimit.remaining === 0) {
+      res.status(options.statusCode).json({
+        status: "ratelimit",
+        ratelimit: {
+          message: options.message
+        }
+      })
+    } else {
+      next()
+    }
+  }
+})
 const corsWhitelist = [process.env.APP_FRONT_END_URL]
 app.use(
   cors({
@@ -46,6 +66,7 @@ app.use("/demo-face-detection", demoFaceDetectionRouter)
 app.use(
   "/face-detection",
   authorizeUser,
+  limiter,
   faceDetectionRouter
 )
 
