@@ -40,12 +40,15 @@ export class LoginController {
         const result = await this.#handleLogin({ email, password })
 
         if (result.status !== "success") {
-          return res.status(400).json(result)
+          return res.status(result.statusCode).json({
+            status: result.status,
+            fail: result.fail
+          })
         } else {
           const { userToken } = result.success
 
           res.cookie(SESSION_TOKEN_KEY, userToken, COOKIE_OPTIONS)
-          res.status(200).json({ status: "success" })
+          res.status(result.statusCode).json({ status: result.status })
         }
       } catch (err) {
         console.log(err)
