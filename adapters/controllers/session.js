@@ -1,11 +1,5 @@
 import { isValidEmail } from "../../utilities/functions.js"
-
-const SESSION_TOKEN_KEY = "utoken"
-const COOKIE_OPTIONS = {
-  secure: true, // false for local development
-  httpOnly: true,
-  sameSite: "None" // 'lax' for local development
-}
+import { COOKIE_KEYS, COOKIE_OPTIONS } from "../../utilities/constants.js"
 
 export class LoginController {
   #handleLogin
@@ -47,7 +41,7 @@ export class LoginController {
         } else {
           const { userToken } = result.success
 
-          res.cookie(SESSION_TOKEN_KEY, userToken, COOKIE_OPTIONS)
+          res.cookie(COOKIE_KEYS.utoken, userToken, COOKIE_OPTIONS)
           res.status(result.statusCode).json({ status: result.status })
         }
       } catch (err) {
@@ -66,7 +60,7 @@ export class LoginController {
 
 export class LogoutController {
   logout = async (req, res) => {
-    res.clearCookie(SESSION_TOKEN_KEY, COOKIE_OPTIONS)
+    res.clearCookie(COOKIE_KEYS.utoken, COOKIE_OPTIONS)
     res.status(200).json({
       status: "success"
     })
