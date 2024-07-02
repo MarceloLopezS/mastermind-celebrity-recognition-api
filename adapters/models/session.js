@@ -21,6 +21,7 @@ export class LoginModel {
     if (selectAuthResponse.rowCount === 0) {
       return {
         status: "fail",
+        statusCode: 400,
         fail: { message: "Incorrect email or password." }
       }
     }
@@ -29,6 +30,7 @@ export class LoginModel {
     if (userAuthRow.activation !== "active") {
       return {
         status: "fail",
+        statusCode: 403,
         fail: { message: "This account is not yet activated." }
       }
     }
@@ -37,6 +39,7 @@ export class LoginModel {
     if (!hashMatch) {
       return {
         status: "fail",
+        statusCode: 400,
         fail: { message: "Incorrect email or password." }
       }
     }
@@ -45,6 +48,7 @@ export class LoginModel {
 
     return {
       status: "success",
+      statusCode: 200,
       success: { userToken }
     }
   }
