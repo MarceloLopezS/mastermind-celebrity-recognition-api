@@ -5,5 +5,6 @@ export const COOKIE_KEYS = {
 export const COOKIE_OPTIONS = {
   secure: true, // false for local development
   httpOnly: true,
-  sameSite: "None" // 'lax' for local development
+  sameSite: "None", // 'lax' for local development
+  partitioned: true
 }
