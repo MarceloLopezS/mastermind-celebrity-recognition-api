@@ -37,17 +37,15 @@ export class DemoDetectionController {
 }
 
 export class DetectionController {
-  #fs
   #getDetectionData
 
-  constructor(fileSystemHandler, getDetectionDataHandler) {
-    this.#fs = fileSystemHandler
+  constructor(getDetectionDataHandler) {
     this.#getDetectionData = getDetectionDataHandler
   }
 
   getData = async (req, res) => {
     if (!req.authorizedUser) {
-      this.#fs.unlink(req.file.path, err => err && console.log(err))
+      req.file.buffer = null
 
       return res.status(403).json({
         status: "unauthorized"
@@ -55,11 +53,9 @@ export class DetectionController {
     }
 
     try {
-      const imageFolder = req.file.destination.split("/").at(-1)
-      const imageUrl =
-        `${process.env.APP_API_URL}/${imageFolder}/${req.file.filename}`
+      const image = req.file.buffer
 
-      const result = await this.#getDetectionData(imageUrl)
+      const result = await this.#getDetectionData(image)
 
       if (result.status === "success") {
         res.status(result.statusCode).json({
@@ -76,7 +72,7 @@ export class DetectionController {
         }
       })
     } finally {
-      this.#fs.unlink(req.file.path, err => err && console.log(err))
+      req.file.buffer = null
     }
   }
 }

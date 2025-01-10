@@ -36,7 +36,7 @@ export class DetectionModel {
     this.#grpc = grpc
   }
 
-  getData = async (imageUrl, Detection) => {
+  getData = async (image, Detection) => {
 
     const stub = this.#stub.grpc()
     const metadata = new this.#grpc.Metadata()
@@ -50,7 +50,7 @@ export class DetectionModel {
             app_id: process.env.APP_ID
           },
           model_id: process.env.MODEL_ID,
-          inputs: [{ data: { image: { url: imageUrl } } }]
+          inputs: [{ data: { image: { base64: image } } }]
         },
         metadata,
         (err, response) => {
